@@ -53,8 +53,10 @@ public class PercolationVisualizer {
         StdDraw.setFont(new Font("SansSerif", Font.PLAIN, 12));
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.text(.25*N, -N*.025, opened + " open sites");
-        if (perc.percolates()) StdDraw.text(.75*N, -N*.025, "percolates");
-        else                   StdDraw.text(.75*N, -N*.025, "does not percolate");
+        if (perc.percolates()) 
+        	StdDraw.text(.75*N, -N*.025, "percolates");
+        else                   
+        	StdDraw.text(.75*N, -N*.025, "does not percolate");
 
     }
 
@@ -75,8 +77,6 @@ public class PercolationVisualizer {
             perc.open(i, j);
             draw(perc, N);
             StdDraw.show(DELAY);
-            if (perc.percolates())
-            	System.out.println("Percolation");
         }
     }
 }
