@@ -3,7 +3,7 @@ public class Percolation {
 	   private int grid_size;
 	   private WeightedQuickUnionUF unionfind;
 	   // create N-by-N grid, with all sites blocked
-	   // 0 = closed, 1 = open
+	   // false = closed, true = open
 	   public Percolation(int N){
 		   grid_size = N;
 		   unionfind = new WeightedQuickUnionUF(N*N+2);
@@ -16,7 +16,7 @@ public class Percolation {
        // open site (row i, column j) if it is not already
 	   public void open(int i, int j) { 
 		   assertValidIndices(i,j);
-		   if (grid[i-1][j-1])
+		   if (isOpen(i, j))
 			   return;
 		   //open site
 		   grid[i-1][j-1] = true;
@@ -42,9 +42,17 @@ public class Percolation {
 			   unionfind.union(cell_index,grid_size*grid_size);
            if (i == grid_size && isFull(i, j) )
         	   unionfind.union(cell_index,grid_size*grid_size+1);
+           if (isFull(i, j))
+        	   checkForPercolation();
 	   }
 	   
-	   // is site (row i, column j) open?
+	   private void checkForPercolation() {
+		   for(int j=1;j<=grid_size;j++){
+			   if(isFull(grid_size,j))
+				   unionfind.union(mapGridToUnion(grid_size, j),grid_size*grid_size+1);
+		   }
+	   }
+	// is site (row i, column j) open?
 	   public boolean isOpen(int i, int j) {
 		   assertValidIndices(i,j);
 		   return grid[i-1][j-1];
@@ -58,10 +66,8 @@ public class Percolation {
 	   
 	   private int mapGridToUnion(int i, int j){
 		   assertValidIndices(i, j);
-		   if (i>1)
-			   return (i-1)*this.grid_size + (j-1);
-		   else
-			   return j-1;
+		   return (i-1)*this.grid_size + (j-1);
+		   
 	   }
 	   // is site (row i, column j) full?
 	   public boolean isFull(int i, int j){

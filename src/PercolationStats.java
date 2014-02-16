@@ -10,8 +10,10 @@ public class PercolationStats {
 		this.N = N;
 		this.T = T;
 		results = new double[T];
-		for (int i=0;i<T;i++)
+		for (int i=0;i<T;i++){
+			System.out.println("Running experiment "+i+" of "+T);
 			results[i] = performPercolationExperiment(N);
+		}
 	}
 	// sample mean of percolation threshold
 	public double mean() {
@@ -37,10 +39,16 @@ public class PercolationStats {
 		while(!percolation.percolates()){
 			int i = 1 + random.nextInt(n);
 			int j = 1 + random.nextInt(n);
-			if (!percolation.isOpen(i, j)){
-				openingCount++;
-				percolation.open(i, j);
+			do{
+				//System.out.println("("+i+","+j+")");
+				if (j==n)
+					i=i%n+1;
+				j=j%n+1;
 			}
+			while(percolation.isOpen(i, j));
+			//System.out.println("WTF");
+			openingCount++;
+			percolation.open(i, j);
 		}
 	    return openingCount/((double)n*n);
 	}
