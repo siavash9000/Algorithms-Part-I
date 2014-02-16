@@ -1,12 +1,12 @@
 
 public class PercolationStats {
-	double[] results;
-	int N;
-	int T;
+	private double[] results;
+	private int T;
 	
 	// perform T independent computational experiments on an N-by-N grid
 	public PercolationStats(int N, int T){
-		this.N = N;
+		if (N<=0 || T<=0)
+			throw new IllegalArgumentException("Invalid input");
 		this.T = T;
 		results = new double[T];
 		for (int i=0;i<T;i++){
@@ -53,8 +53,7 @@ public class PercolationStats {
 	public static void main(String[] args) {
 		int N = Integer.parseInt(args[0]);
 		int T = Integer.parseInt(args[1]);
-		if (N<=0 || T<=0)
-			throw new IllegalArgumentException("Invalid input");
+		
 		PercolationStats stats = new PercolationStats(N, T);
 		System.out.printf("mean                    = %f \n",stats.mean());
 		System.out.printf("standard deviation      = %f \n",stats.stddev());
