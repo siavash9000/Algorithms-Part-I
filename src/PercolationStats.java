@@ -10,7 +10,6 @@ public class PercolationStats {
 		this.T = T;
 		results = new double[T];
 		for (int i=0;i<T;i++){
-			System.out.println("Running experiment "+i+" of "+T);
 			results[i] = performPercolationExperiment(N);
 		}
 	}
