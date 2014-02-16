@@ -1,4 +1,3 @@
-import java.util.Random;
 
 public class PercolationStats {
 	double[] results;
@@ -34,19 +33,17 @@ public class PercolationStats {
 
 	private double performPercolationExperiment(int n) {
 		Percolation percolation = new Percolation(n);
-		Random random = new Random(System.currentTimeMillis()) ;
 		double openingCount = 0;
 		while(!percolation.percolates()){
-			int i = 1 + random.nextInt(n);
-			int j = 1 + random.nextInt(n);
+			int i = 1 + StdRandom.uniform(n);
+			int j = 1 + StdRandom.uniform(n);
+			//if random cell not open->move right till next open cell
 			do{
-				//System.out.println("("+i+","+j+")");
 				if (j==n)
 					i=i%n+1;
 				j=j%n+1;
 			}
 			while(percolation.isOpen(i, j));
-			//System.out.println("WTF");
 			openingCount++;
 			percolation.open(i, j);
 		}
@@ -60,8 +57,6 @@ public class PercolationStats {
 		if (N<=0 || T<=0)
 			throw new IllegalArgumentException("Invalid input");
 		PercolationStats stats = new PercolationStats(N, T);
-		//System.out.println("N="+N+",T="+T);
-		//System.out.println(Arrays.toString(stats.results));
 		System.out.printf("mean                    = %f \n",stats.mean());
 		System.out.printf("standard deviation      = %f \n",stats.stddev());
 		System.out.printf("95 confidence interval  = %f  %f \n",stats.confidenceLo(),stats.confidenceHi());
