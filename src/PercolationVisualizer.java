@@ -71,7 +71,7 @@ public class PercolationVisualizer {
         Percolation perc = new Percolation(N);
         draw(perc, N);
         StdDraw.show(DELAY);
-        while (!in.isEmpty()) {
+        while (!in.isEmpty() && !perc.percolates()) {
             int i = in.readInt();
             int j = in.readInt();
             perc.open(i, j);

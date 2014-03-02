@@ -43,7 +43,7 @@ public class PercolationStats {
 	 *
 	 * @return the double
 	 */
-	public final double stddev() {
+	public double stddev() {
 		return StdStats.stddev(results);
 	}
 	// returns lower bound of the 95% confidence interval

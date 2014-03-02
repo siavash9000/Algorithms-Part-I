@@ -75,8 +75,10 @@ public class Percolation {
    	 */
    	private void checkForPercolation(int i, int j) {
 		   for(int col=1;col<=gridSize;col++){
-			   if(unionfind.connected(mapGridToUnion(gridSize, col),mapGridToUnion(i, j)))
+			   if(unionfind.connected(mapGridToUnion(gridSize, col),mapGridToUnion(i, j))){
 				   unionfind.union(mapGridToUnion(gridSize, col),gridSize*gridSize+1);
+				   break;
+			   }
 		   }
 	   }
 	// is site (row i, column j) open?
