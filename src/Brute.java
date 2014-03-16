@@ -1,7 +1,13 @@
+import java.util.Arrays;
+
 public class Brute {
 
 	public static void main(String[] args) {
+		StdDraw.setXscale(0, 32768);
+		StdDraw.setYscale(0, 32768);
 		Point[] points = readPoints(args);
+		for (Point point:points)
+			point.draw();
 		checkAllSetsOfSize4(points);
 		//System.out.println(Arrays.toString(points));
 	}
@@ -20,17 +26,15 @@ public class Brute {
 	}
 	
 	private static void drawLine(Point[] points) {
-		for (int i=0;i<points.length;i++){
-			points[i].draw();
-			if(i+1<points.length)
-				points[i].drawTo(points[i+1]);
-		}
+		Arrays.sort(points,0,points.length);
+		points[0].drawTo(points[points.length-1]);
 		
 	}
 
-	private static void printToOutput(Point[] subSet) {
-		String output = subSet[0].toString()+" -> "+subSet[1].toString()+ " -> "
-						+subSet[2].toString()+ " -> "+subSet[3].toString();   
+	private static void printToOutput(Point[] points) {
+		Arrays.sort(points,0,points.length);
+		String output = points[0].toString()+" -> "+points[1].toString()+ " -> "
+						+points[2].toString()+ " -> "+points[3].toString();   
 		StdOut.println(output);
 	}
 
