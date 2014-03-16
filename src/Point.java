@@ -29,12 +29,7 @@ public class Point implements Comparable<Point> {
 				throw new NullPointerException();
 			Double slopeA = Point.this.slopeTo(a);
 			Double slopeB = Point.this.slopeTo(b);
-			if (slopeA < slopeB)
-				return -1;
-			else if (slopeA == slopeB)
-				return 0;
-			else 
-				return 1;
+			return slopeA.compareTo(slopeB);
 		}};
 
     private final int x;                              // x coordinate
@@ -94,12 +89,6 @@ public class Point implements Comparable<Point> {
 
     // unit test
     public static void main(String[] args) {
-    	StdDraw.setCanvasSize(600, 600);
-    	Point a = new Point(-2,-5);
-    	Point b = new Point(1,0);
-    	System.out.println(a.slopeTo(b));
-    	//a.draw();
-    	b.draw();
-    	//a.drawTo(b);
-    }
+
+		}
 }
