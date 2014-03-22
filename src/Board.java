@@ -28,8 +28,7 @@ public class Board {
     		}
     	}
     	return wrongPositions;
-    }
-    
+    }    
     public int manhattan(){
     	int sumOfDistances = 0;
     	for (int i=0;i<this.dimension;i++){
@@ -55,18 +54,21 @@ public class Board {
         }
         return target;
     }
-    public Board twin(){
-    	int[][] twin = cloneArray(board);
-    	for(int i=0;i<dimension;i++){
-    		if (twin[i][0]!=0 && twin[i][1]!=0){
-    			int temp = twin[i][0];
-    			twin[i][0] = twin[i][1];
-    			twin[i][1] = temp;
-    			break;
+    public Board twin() throws Exception{
+    	for(int i=0;i<board.length;i++){
+    		if (board[i][0]!=0 && board[i][1]!=0){
+    			return new Board(cloneAndRotate(this.board,i,0,i,1));
     		}	
     	}
-    	return new Board(twin);
+    	throw new Exception("Could not build twin.");
     }
+    
+    private void changePositions(int[][] board, int i1, int j1, int i2, int j2) {
+    	int temp=board[i1][j1];
+    	board[i1][j1]=board[i2][j2];
+    	board[i2][j2]=temp;
+    }
+    @Override
     public boolean equals(Object y){
         if (y == this) return true;
         if (y == null) return false;
@@ -81,7 +83,58 @@ public class Board {
         }
         return true;
     }
-    /*public Iterable<Board> neighbors()     // all neighboring boards
-    public String toString()               // string representation of the board (in the output format specified below)
-	*/
+    private int[][] cloneAndRotate(int[][] source, int i1,int j1,int i2,int j2) {
+    	int[][] clone = cloneArray(board);
+    	changePositions(clone, i1, j1, i2, j2);
+    	return clone;
+    }
+    public Iterable<Board> neighbors(){
+    	Queue<Board> neighbors = new Queue<>();
+    	int[] blankPosition = findBlankPosition();
+    	int blankI = blankPosition[0],blankJ = blankPosition[1];
+    	enqueuePossibleNeighbors(neighbors, blankI, blankJ);
+    	return neighbors;
+    }
+	private void enqueuePossibleNeighbors(Queue<Board> neighbors, int blankI,
+			int blankJ) {
+		if (blankI>0){
+    		int[][] neighorBoard = cloneAndRotate(board, blankI, blankJ, blankI-1,blankJ);
+    		neighbors.enqueue(new Board(neighorBoard));
+    	}
+    	if (blankI<dimension-1){
+    		int[][] neighorBoard = cloneAndRotate(board, blankI, blankJ, blankI+1,blankJ);
+    		neighbors.enqueue(new Board(neighorBoard));   		
+    	}
+    	if (blankJ>0){
+    		int[][] neighorBoard = cloneAndRotate(board, blankI, blankJ, blankI,blankJ-1);
+    		neighbors.enqueue(new Board(neighorBoard));   		
+    	}
+    	if (blankJ<dimension-1){
+    		int[][] neighorBoard = cloneAndRotate(board, blankI, blankJ, blankI,blankJ+1);
+    		neighbors.enqueue(new Board(neighorBoard));   		
+    	}
+	}
+	private int[] findBlankPosition() {
+		int[] blankPosition = new int[2];
+    	for (int i=0;i<dimension;i++){
+    		for (int j=0;j<dimension;j++){
+    			int value = board[i][j];
+    			if (value==0){
+    				blankPosition[0] = i;
+    				blankPosition[1] = j;
+    			}
+    		}
+    	}
+    	return blankPosition;
+	}    
+    public String toString(){
+    	StringBuilder output = new StringBuilder();
+    	output.append(Integer.toString(dimension));
+    	for (int i=0;i<dimension;i++){
+    		output.append("\n");
+    		for (int j=0;j<dimension;j++)
+    			output.append(String.format("%2d ", board[i][j]));
+    	}
+    	return output.toString();
+    }
 }
