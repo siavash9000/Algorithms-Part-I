@@ -1,7 +1,9 @@
 public class Board {
 	
-	private int[][] board;
-	private int dimension;
+	private final int[][] board;
+	private final int dimension;
+	private Integer manhattan = null;
+	private Integer hamming = null;
 	
     public Board(int[][] blocks){
     	if (blocks == null)
@@ -19,6 +21,8 @@ public class Board {
     	return dimension;
     }
     public int hamming() {
+    	if (hamming != null)
+    		return hamming;
     	int wrongPositions = 0;
     	for (int i=0;i<dimension;i++){
     		for (int j=0;j<dimension;j++){
@@ -27,9 +31,12 @@ public class Board {
     				wrongPositions++;
     		}
     	}
+    	hamming = wrongPositions;
     	return wrongPositions;
     }    
     public int manhattan(){
+    	if (manhattan != null)
+    		return manhattan;
     	int sumOfDistances = 0;
     	for (int i=0;i<this.dimension;i++){
     		for (int j=0;j<this.dimension;j++){
@@ -41,6 +48,7 @@ public class Board {
     			sumOfDistances += Math.abs(goalI-i) + Math.abs(goalJ-j); 
     		}
     	}
+    	manhattan = sumOfDistances;
     	return sumOfDistances;
     }
     public boolean isGoal(){
@@ -54,13 +62,13 @@ public class Board {
         }
         return target;
     }
-    public Board twin() throws Exception{
+    public Board twin() {
     	for(int i=0;i<board.length;i++){
     		if (board[i][0]!=0 && board[i][1]!=0){
     			return new Board(cloneAndRotate(this.board,i,0,i,1));
     		}	
     	}
-    	throw new Exception("Could not build twin.");
+    	return null;
     }
     
     private void changePositions(int[][] board, int i1, int j1, int i2, int j2) {
