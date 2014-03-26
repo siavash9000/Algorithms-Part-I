@@ -117,7 +117,7 @@ public class Solver {
 	
 	public static void main(String[] args) {
 	    // create initial board from file
-	    In in = new In("8puzzle/puzzle32.txt");
+	    In in = new In("8puzzle/puzzle33.txt");
 	    //In in = new In("8puzzle/puzzle3x3-unsolvable.txt");
 	    
 	    int N = in.readInt();
