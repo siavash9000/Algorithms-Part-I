@@ -126,34 +126,28 @@ public class KdTree {
 	}
 
 	public Point2D nearest(Point2D point) {
-		return nearest(root,point,Double.POSITIVE_INFINITY);
+		return nearestNodeOfSubtree(root,point,Double.POSITIVE_INFINITY).point;
 	}
-	private Point2D nearest(Node currentNode, Point2D point,Double lastSmallestDistance) {
-		Point2D result = currentNode.point, leftResult=null, rightResult=null;
-		Double distance = lastSmallestDistance, leftDistance = Double.POSITIVE_INFINITY, rightDistance=Double.POSITIVE_INFINITY;
-		if (currentNode.point.distanceTo(point)<distance){
-			result = currentNode.point;
-			distance = currentNode.point.distanceTo(point);
+	private Node nearestNodeOfSubtree(Node subtreeRootNode, Point2D point, Double currentSmallestDistance) {
+		Node result = null;
+		if (subtreeRootNode!=null && !subtreeRootNode.point.equals(point) && subtreeRootNode.point.distanceTo(point)<currentSmallestDistance){
+			result = subtreeRootNode;
+			currentSmallestDistance = result.point.distanceTo(point);			
+		}
+		if (subtreeRootNode.left!=null) {
+			Node leftSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.left, point, currentSmallestDistance);
+			if (leftSubtreeNearestNode!=null){
+				result = leftSubtreeNearestNode;
+				currentSmallestDistance = result.point.distanceTo(point);
+			}
+		}
+		if (subtreeRootNode.right!=null) {
+			Node rightSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.right, point, currentSmallestDistance);
+			if (rightSubtreeNearestNode!=null){
+				result = rightSubtreeNearestNode;
+				currentSmallestDistance = result.point.distanceTo(point);
+			}
 		}	
-		if (currentNode.left != null && currentNode.left.rectangleRepresentation.distanceTo(point)<distance){
-			Point2D currentResult=nearest(currentNode.left,point,distance);
-			if (currentResult!=null && !currentResult.equals(point)){
-				leftResult = currentResult;
-				leftDistance = leftResult.distanceTo(point);				
-			}
-		}
-		if (currentNode.right != null && currentNode.right.rectangleRepresentation.distanceTo(point)<distance){
-			Point2D currentResult=nearest(currentNode.right,point,distance);
-			if (currentResult!=null && !currentResult.equals(point)){
-				rightResult = currentResult;
-				rightDistance = rightResult.distanceTo(point);
-			}
-		}
-		if (rightResult!=null && rightDistance<leftDistance)
-			result=rightResult;
-		else if(leftResult!=null)
-			result=leftResult;
-		assert(result != null);
 		return result;
 	}
 	private class Node {
@@ -227,9 +221,7 @@ public class KdTree {
             double y = StdRandom.uniform();
             Point2D newPoint = new Point2D(x, y);
             points.insert(newPoint);
-        }
-        
-        
+        }       
         
         for (Point2D point: points.range(new RectHV(0, 0, 1, 1))){
         	StdDraw.setPenColor(StdDraw.GREEN);
