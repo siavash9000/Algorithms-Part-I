@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class KdTree {
 	private Node root;
 	private int size=0; 
@@ -11,25 +13,33 @@ public class KdTree {
 	}
 
 	public void insert(Point2D point) {
-		root = insertIntoKdTree(root, point,true);
+		Node currentNode = insertIntoKdTree(root,null,point,true);
+		if (root==null)
+		{
+			root = currentNode;
+			root.createRectangleRepresentation();
+		}
 	}
 	
-	private Node insertIntoKdTree(Node root, Point2D point,boolean vertical){
-		if(root==null){
-			root = new Node(point,null, null, vertical);
+	private Node insertIntoKdTree(Node currentNodeOfTree,Node root, Point2D point,boolean vertical){
+		if(currentNodeOfTree==null){
+			currentNodeOfTree = new Node(point,root, vertical);
 			size++;
 		}
-		if (root.point.equals(point))
-			return root;
-		if(root.vertical && Point2D.X_ORDER.compare(root.point,point)==1 || 
-		  !root.vertical && Point2D.Y_ORDER.compare(root.point, point) == 1)
-			root.left  = insertIntoKdTree(root.left, point, !vertical);
-		else 
-			root.right = insertIntoKdTree(root.right, point, !vertical);
-		return root;
+		if (currentNodeOfTree.point.equals(point))
+			return currentNodeOfTree;
+		if(currentNodeOfTree.vertical && Point2D.X_ORDER.compare(currentNodeOfTree.point,point)==1 || 
+		  !currentNodeOfTree.vertical && Point2D.Y_ORDER.compare(currentNodeOfTree.point, point) == 1){
+			currentNodeOfTree.left  = insertIntoKdTree(currentNodeOfTree.left,currentNodeOfTree, point, !vertical);
+			currentNodeOfTree.left.createRectangleRepresentation();
+		}
+		else { 
+			currentNodeOfTree.right = insertIntoKdTree(currentNodeOfTree.right,currentNodeOfTree, point, !vertical);
+			currentNodeOfTree.right.createRectangleRepresentation();
+		}
+		return currentNodeOfTree;
 		
 	}
-
 	public boolean contains(Point2D point) {		
 		return treeContainsPoint(null, point);
 	}
@@ -48,9 +58,7 @@ public class KdTree {
 		drawNodeInsertionLine(null,root);
 	}	
 	private void drawNodeInsertionLine(Node root,Node node){
-		if (node!=null) {
-			node.point.draw();
-			StdDraw.circle(node.point.x(), node.point.y(), 0.009);
+		if (node!=null) {			
 			double lineX1=0,lineX2=0,lineY1=0,lineY2=0;
 			if (node.vertical){
 				StdDraw.setPenColor(StdDraw.RED);
@@ -87,24 +95,83 @@ public class KdTree {
 					}
 			}
 			StdDraw.line(lineX1, lineY1, lineX2, lineY2);
+			node.point.draw();
+			StdDraw.circle(node.point.x(), node.point.y(), 0.009);
 			drawNodeInsertionLine(node,node.left);
 			drawNodeInsertionLine(node,node.right);
 		}
 	}	
+	/*
 	public Iterable<Point2D> range(RectHV rect){
+		//iterate tree and define for each node representing rectangle
+		Stack<Point2D> range = new Stack<Point2D>();
+		range = range(root,range,rect);
 		return null;
 	}	
+	private Stack<Point2D> range(Node currentNodeOfTree, Stack<Point2D> range, RectHV rect) {
+		if (currentNodeOfTree==null)
+			return range;
+		
+	}*/
+
 	public Point2D nearest(Point2D p) {
 		Point2D result = null;
 		return result;
 	}
 	private class Node {
-		public Node left,right;
+		public Node left,right,parent;
 		public Point2D point;
 		public boolean vertical;
-		public Node(Point2D point, Node left, Node right, boolean vertical){
+		public RectHV rectangleRepresentation;
+		public Node(Point2D point, Node parent,boolean vertical){
 			this.point = point;
 			this.vertical = vertical;
+			this.parent = parent;
+		}
+		public void createRectangleRepresentation() {
+			boolean leftVertical = false,rightVertical=false,leftHorizontal=false,rightHorizontal=false;
+			Node currentParent = parent;
+			Node current = this;
+			int seenParentNodes = 0;
+			double minX=0,minY=0,maxX=1,maxY=1;
+			while(currentParent != null && seenParentNodes<4){
+				if (currentParent.left != null && currentParent.vertical && !leftVertical && current==currentParent.left){
+					double x = currentParent.point.x();
+					if (point.x()>x)
+						minX=x;
+					else
+						maxX=x;
+					leftVertical=true;
+				}
+				else if (currentParent.left != null && !currentParent.vertical && !leftHorizontal && current==currentParent.left){
+					double y = currentParent.point.y();
+					if (point.y()>y)
+						minY=y;
+					else
+						maxY=y;
+					leftHorizontal=true;
+				}
+				else if (currentParent.right != null && currentParent.vertical && !rightVertical && current==currentParent.right){
+					double x=currentParent.point.x();
+					if(point.x()>x)
+						minX=x;
+					else
+						maxX=x;
+					rightVertical=true;
+				}
+				else if (currentParent.right != null && !currentParent.vertical && !rightHorizontal && current==currentParent.right){
+					double y = currentParent.point.y();
+					if (point.y()>y)
+						minY=y;
+					else
+						maxY=y;
+					rightHorizontal=true;
+				}
+				current = currentParent;
+				currentParent = currentParent.parent;
+				seenParentNodes++;
+			}
+			this.rectangleRepresentation = new RectHV(minX,minY,maxX,maxY);
 		}
 	}
     /**
@@ -122,7 +189,7 @@ public class KdTree {
         points.insert(new Point2D(0.2, 0.3));
         points.insert(new Point2D(0.4, 0.7));
         points.insert(new Point2D(0.9, 0.6));
-        points.draw();
+        points.root.right.rectangleRepresentation.draw();
        /* for (int i = 0; i < N; i++) {
             double x = StdRandom.uniform();
             double y = StdRandom.uniform();
