@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 public class KdTree {
 	private Node root;
@@ -55,8 +54,17 @@ public class KdTree {
 			return treeContainsPoint(root.right, point);
 	}
 	public void draw() {
-		drawNodeInsertionLine(null,root);
+		//drawNodeInsertionLine(null,root);
+		drawTree(root);
 	}	
+	private void drawTree(Node node) {		
+		if (node!=null){
+			node.point.draw();
+			drawTree(node.left);
+			drawTree(node.right);
+		}
+	}
+
 	private void drawNodeInsertionLine(Node root,Node node){
 		if (node!=null) {			
 			double lineX1=0,lineX2=0,lineY1=0,lineY2=0;
@@ -101,21 +109,51 @@ public class KdTree {
 			drawNodeInsertionLine(node,node.right);
 		}
 	}	
-	/*
+	
 	public Iterable<Point2D> range(RectHV rect){
 		//iterate tree and define for each node representing rectangle
 		Stack<Point2D> range = new Stack<Point2D>();
-		range = range(root,range,rect);
-		return null;
+		return range(root,range,rect);
 	}	
 	private Stack<Point2D> range(Node currentNodeOfTree, Stack<Point2D> range, RectHV rect) {
-		if (currentNodeOfTree==null)
-			return range;
-		
-	}*/
+		if (rect.contains(currentNodeOfTree.point))
+			range.push(currentNodeOfTree.point);
+		if (currentNodeOfTree.left !=null && rect.intersects(currentNodeOfTree.left.rectangleRepresentation))
+			range(currentNodeOfTree.left,range,rect);
+		if (currentNodeOfTree.right !=null && rect.intersects(currentNodeOfTree.right.rectangleRepresentation))
+			range(currentNodeOfTree.right,range,rect);
+		return range;
+	}
 
-	public Point2D nearest(Point2D p) {
-		Point2D result = null;
+	public Point2D nearest(Point2D point) {
+		return nearest(root,point,Double.POSITIVE_INFINITY);
+	}
+	private Point2D nearest(Node currentNode, Point2D point,Double lastSmallestDistance) {
+		Point2D result = currentNode.point, leftResult=null, rightResult=null;
+		Double distance = lastSmallestDistance, leftDistance = Double.POSITIVE_INFINITY, rightDistance=Double.POSITIVE_INFINITY;
+		if (currentNode.point.distanceTo(point)<distance){
+			result = currentNode.point;
+			distance = currentNode.point.distanceTo(point);
+		}	
+		if (currentNode.left != null && currentNode.left.rectangleRepresentation.distanceTo(point)<distance){
+			Point2D currentResult=nearest(currentNode.left,point,distance);
+			if (currentResult!=null && !currentResult.equals(point)){
+				leftResult = currentResult;
+				leftDistance = leftResult.distanceTo(point);				
+			}
+		}
+		if (currentNode.right != null && currentNode.right.rectangleRepresentation.distanceTo(point)<distance){
+			Point2D currentResult=nearest(currentNode.right,point,distance);
+			if (currentResult!=null && !currentResult.equals(point)){
+				rightResult = currentResult;
+				rightDistance = rightResult.distanceTo(point);
+			}
+		}
+		if (rightResult!=null && rightDistance<leftDistance)
+			result=rightResult;
+		else if(leftResult!=null)
+			result=leftResult;
+		assert(result != null);
 		return result;
 	}
 	private class Node {
@@ -178,33 +216,30 @@ public class KdTree {
      * Unit tests the point data type.
      */
     public static void main(String[] args) {
-        int N = 10;
-        StdDraw.setCanvasSize(800, 800);
+        int N = 50;
+        StdDraw.setCanvasSize(600, 600);
         StdDraw.setXscale(0, 1);
         StdDraw.setYscale(0, 1);
         StdDraw.setPenRadius(.005);
         KdTree points = new KdTree();
-        points.insert(new Point2D(0.7, 0.2));
-        points.insert(new Point2D(0.5, 0.4));
-        points.insert(new Point2D(0.2, 0.3));
-        points.insert(new Point2D(0.4, 0.7));
-        points.insert(new Point2D(0.9, 0.6));
-        points.root.right.rectangleRepresentation.draw();
-       /* for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++) {
             double x = StdRandom.uniform();
             double y = StdRandom.uniform();
-            points.insert(new Point2D(x, y));
+            Point2D newPoint = new Point2D(x, y);
+            points.insert(newPoint);
         }
         
-        points.draw();
         
-        StdDraw.setPenColor(StdDraw.RED);
-        for (Point2D point: points.range(new RectHV(0, 0, 100, 100))){
+        
+        for (Point2D point: points.range(new RectHV(0, 0, 1, 1))){
+        	StdDraw.setPenColor(StdDraw.GREEN);
+        	points.draw();
         	StdDraw.setPenColor(StdDraw.RED);
         	point.draw();
         	Point2D nearest = points.nearest(point);
-        	StdDraw.circle(point.x(), point.y(), point.distanceTo(nearest));
         	StdDraw.setPenColor(StdDraw.GREEN);
+        	StdDraw.circle(point.x(), point.y(), point.distanceTo(nearest));
+        	StdDraw.setPenColor(StdDraw.RED);
         	nearest.draw();
         	try {
 				Thread.sleep(3000);
@@ -212,17 +247,17 @@ public class KdTree {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	StdDraw.setPenColor(StdDraw.GREEN);
         	StdDraw.clear();
-        	points.draw();
         }
         
         StdDraw.setPenColor(StdDraw.GREEN);
-        RectHV rectangle = new RectHV(10, 10, 70, 70);
+        RectHV rectangle = new RectHV(0.1, 0.1, 0.6, 0.6);
         rectangle.draw();
+
+        StdDraw.setPenRadius(.01);
         for (Point2D point: points.range(rectangle)){
         	point.draw();
         }
-        */
+       
     }
 }
