@@ -134,14 +134,14 @@ public class KdTree {
 			result = subtreeRootNode;
 			currentSmallestDistance = result.point.distanceTo(point);			
 		}
-		if (subtreeRootNode.left!=null) {
+		if (subtreeRootNode.left!=null && currentSmallestDistance>subtreeRootNode.left.rectangleRepresentation.distanceTo(point)) {
 			Node leftSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.left, point, currentSmallestDistance);
 			if (leftSubtreeNearestNode!=null){
 				result = leftSubtreeNearestNode;
 				currentSmallestDistance = result.point.distanceTo(point);
 			}
 		}
-		if (subtreeRootNode.right!=null) {
+		if (subtreeRootNode.right!=null && currentSmallestDistance>subtreeRootNode.right.rectangleRepresentation.distanceTo(point)) {
 			Node rightSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.right, point, currentSmallestDistance);
 			if (rightSubtreeNearestNode!=null){
 				result = rightSubtreeNearestNode;
@@ -210,8 +210,8 @@ public class KdTree {
      * Unit tests the point data type.
      */
     public static void main(String[] args) {
-        int N = 50;
-        StdDraw.setCanvasSize(600, 600);
+        int N = 10000;
+        StdDraw.setCanvasSize(800, 800);
         StdDraw.setXscale(0, 1);
         StdDraw.setYscale(0, 1);
         StdDraw.setPenRadius(.005);
@@ -222,7 +222,7 @@ public class KdTree {
             Point2D newPoint = new Point2D(x, y);
             points.insert(newPoint);
         }       
-        
+        /*
         for (Point2D point: points.range(new RectHV(0, 0, 1, 1))){
         	StdDraw.setPenColor(StdDraw.GREEN);
         	points.draw();
@@ -241,13 +241,15 @@ public class KdTree {
 			}
         	StdDraw.clear();
         }
-        
+        */
         StdDraw.setPenColor(StdDraw.GREEN);
         RectHV rectangle = new RectHV(0.1, 0.1, 0.6, 0.6);
         rectangle.draw();
-
+        points.draw();
         StdDraw.setPenRadius(.01);
-        for (Point2D point: points.range(rectangle)){
+        StdDraw.setPenColor(StdDraw.RED);
+        Iterable<Point2D> range = points.range(rectangle);
+        for (Point2D point: range){
         	point.draw();
         }
        
