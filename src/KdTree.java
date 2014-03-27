@@ -12,23 +12,19 @@ public class KdTree {
 	}
 
 	public void insert(Point2D point) {
-		Node currentNode = insertIntoKdTree(root,null,point,true);
-		if (root==null)
-		{
-			root = currentNode;
-			root.createRectangleRepresentation();
-		}
+		root = insertIntoKdTree(root,null,point,true);		
 	}
 	
 	private Node insertIntoKdTree(Node currentNodeOfTree,Node root, Point2D point,boolean vertical){
 		if(currentNodeOfTree==null){
 			currentNodeOfTree = new Node(point,root, vertical);
+			currentNodeOfTree.createRectangleRepresentation();
 			size++;
 		}
 		if (currentNodeOfTree.point.equals(point))
 			return currentNodeOfTree;
-		if(currentNodeOfTree.vertical && Point2D.X_ORDER.compare(currentNodeOfTree.point,point)==1 || 
-		  !currentNodeOfTree.vertical && Point2D.Y_ORDER.compare(currentNodeOfTree.point, point) == 1){
+		if(currentNodeOfTree.vertical && Point2D.X_ORDER.compare(point,currentNodeOfTree.point)<0 || 
+		  !currentNodeOfTree.vertical && Point2D.Y_ORDER.compare(point,currentNodeOfTree.point)<0){
 			currentNodeOfTree.left  = insertIntoKdTree(currentNodeOfTree.left,currentNodeOfTree, point, !vertical);
 			currentNodeOfTree.left.createRectangleRepresentation();
 		}
@@ -40,7 +36,7 @@ public class KdTree {
 		
 	}
 	public boolean contains(Point2D point) {		
-		return treeContainsPoint(null, point);
+		return treeContainsPoint(root, point);
 	}
 	private boolean treeContainsPoint(Node root, Point2D point){
 		if (root == null)
@@ -54,8 +50,8 @@ public class KdTree {
 			return treeContainsPoint(root.right, point);
 	}
 	public void draw() {
-		//drawNodeInsertionLine(null,root);
-		drawTree(root);
+		drawNodeInsertionLine(null,root);
+		//drawTree(root);
 	}	
 	private void drawTree(Node node) {		
 		if (node!=null){
@@ -116,6 +112,8 @@ public class KdTree {
 		return range(root,range,rect);
 	}	
 	private Stack<Point2D> range(Node currentNodeOfTree, Stack<Point2D> range, RectHV rect) {
+		if(currentNodeOfTree==null)
+			return range;
 		if (rect.contains(currentNodeOfTree.point))
 			range.push(currentNodeOfTree.point);
 		if (currentNodeOfTree.left !=null && rect.intersects(currentNodeOfTree.left.rectangleRepresentation))
@@ -126,28 +124,33 @@ public class KdTree {
 	}
 
 	public Point2D nearest(Point2D point) {
-		return nearestNodeOfSubtree(root,point,Double.POSITIVE_INFINITY).point;
+		Node resultNode = nearestNodeOfSubtree(root,point,Double.POSITIVE_INFINITY);
+		if(resultNode!=null)
+			return resultNode.point;
+		else 
+			return null;
 	}
 	private Node nearestNodeOfSubtree(Node subtreeRootNode, Point2D point, Double currentSmallestDistance) {
 		Node result = null;
-		if (subtreeRootNode!=null && !subtreeRootNode.point.equals(point) && subtreeRootNode.point.distanceTo(point)<currentSmallestDistance){
+		if (subtreeRootNode!=null && subtreeRootNode.point.distanceTo(point)<currentSmallestDistance){
 			result = subtreeRootNode;
 			currentSmallestDistance = result.point.distanceTo(point);			
 		}
-		if (subtreeRootNode.left!=null && currentSmallestDistance>subtreeRootNode.left.rectangleRepresentation.distanceTo(point)) {
-			Node leftSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.left, point, currentSmallestDistance);
-			if (leftSubtreeNearestNode!=null){
-				result = leftSubtreeNearestNode;
-				currentSmallestDistance = result.point.distanceTo(point);
-			}
-		}
-		if (subtreeRootNode.right!=null && currentSmallestDistance>subtreeRootNode.right.rectangleRepresentation.distanceTo(point)) {
+		if (subtreeRootNode!=null && subtreeRootNode.right!=null && currentSmallestDistance>=subtreeRootNode.right.rectangleRepresentation.distanceTo(point)) {
 			Node rightSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.right, point, currentSmallestDistance);
 			if (rightSubtreeNearestNode!=null){
 				result = rightSubtreeNearestNode;
 				currentSmallestDistance = result.point.distanceTo(point);
 			}
 		}	
+		if (subtreeRootNode!=null && subtreeRootNode.left!=null && currentSmallestDistance>=subtreeRootNode.left.rectangleRepresentation.distanceTo(point)) {
+			Node leftSubtreeNearestNode = nearestNodeOfSubtree(subtreeRootNode.left, point, currentSmallestDistance);
+			if (leftSubtreeNearestNode!=null){
+				result = leftSubtreeNearestNode;
+				currentSmallestDistance = result.point.distanceTo(point);
+			}
+		}
+		
 		return result;
 	}
 	private class Node {
@@ -169,31 +172,31 @@ public class KdTree {
 			while(currentParent != null && seenParentNodes<4){
 				if (currentParent.left != null && currentParent.vertical && !leftVertical && current==currentParent.left){
 					double x = currentParent.point.x();
-					if (point.x()>x)
+					if (point.x()>=x)
 						minX=x;
 					else
 						maxX=x;
 					leftVertical=true;
 				}
-				else if (currentParent.left != null && !currentParent.vertical && !leftHorizontal && current==currentParent.left){
+				if (currentParent.left != null && !currentParent.vertical && !leftHorizontal && current==currentParent.left){
 					double y = currentParent.point.y();
-					if (point.y()>y)
+					if (point.y()>=y)
 						minY=y;
 					else
 						maxY=y;
 					leftHorizontal=true;
 				}
-				else if (currentParent.right != null && currentParent.vertical && !rightVertical && current==currentParent.right){
+				if (currentParent.right != null && currentParent.vertical && !rightVertical && current==currentParent.right){
 					double x=currentParent.point.x();
-					if(point.x()>x)
+					if(point.x()>=x)
 						minX=x;
 					else
 						maxX=x;
 					rightVertical=true;
 				}
-				else if (currentParent.right != null && !currentParent.vertical && !rightHorizontal && current==currentParent.right){
+				if (currentParent.right != null && !currentParent.vertical && !rightHorizontal && current==currentParent.right){
 					double y = currentParent.point.y();
-					if (point.y()>y)
+					if (point.y()>=y)
 						minY=y;
 					else
 						maxY=y;
@@ -215,12 +218,12 @@ public class KdTree {
         StdDraw.setXscale(0, 1);
         StdDraw.setYscale(0, 1);
         StdDraw.setPenRadius(.005);
-        KdTree points = new KdTree();
+        KdTree tree = new KdTree();
         for (int i = 0; i < N; i++) {
             double x = StdRandom.uniform();
             double y = StdRandom.uniform();
             Point2D newPoint = new Point2D(x, y);
-            points.insert(newPoint);
+            tree.insert(newPoint);
         }       
         /*
         for (Point2D point: points.range(new RectHV(0, 0, 1, 1))){
@@ -245,10 +248,10 @@ public class KdTree {
         StdDraw.setPenColor(StdDraw.GREEN);
         RectHV rectangle = new RectHV(0.1, 0.1, 0.6, 0.6);
         rectangle.draw();
-        points.draw();
+        tree.draw();
         StdDraw.setPenRadius(.01);
         StdDraw.setPenColor(StdDraw.RED);
-        Iterable<Point2D> range = points.range(rectangle);
+        Iterable<Point2D> range = tree.range(rectangle);
         for (Point2D point: range){
         	point.draw();
         }
